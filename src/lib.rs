@@ -3,3 +3,4 @@
 
 /// Parser of assemble
 pub mod assembler;
+pub mod vm_translator;
