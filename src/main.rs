@@ -42,17 +42,18 @@ fn main() {
         ))
         .to_string_lossy()
         .to_string();
-    let mut writer = vm_translator::code_writer::Writer::new(asm_path.as_str());
-    if matches.is_present("init") {
-        writer.write_init()
-    } else {
-    };
-    println!("{:?}", asm_path);
-    for file in files {
-        let file = file.unwrap().path();
-        let vm_path = file.to_str().unwrap();
-        println!("{:?}", vm_path);
-        writer.write(vm_path);
+    {
+        let mut writer = vm_translator::code_writer::Writer::new(asm_path.as_str());
+        if matches.is_present("init") {
+            writer.write_init()
+        }
+        println!("{:?}", asm_path);
+        for file in files {
+            let file = file.unwrap().path();
+            let vm_path = file.to_str().unwrap();
+            println!("{:?}", vm_path);
+            writer.write(vm_path);
+        }
     }
 
     let input = Path::new(asm_path.as_str()).canonicalize().unwrap();
@@ -63,5 +64,7 @@ fn main() {
         let out_name = input.with_extension("hack").clone();
         output = input.with_file_name(out_name).to_string_lossy().to_string();
     };
+    println!("{}", asm_path);
+    println!("{}", output);
     assembler::writer::Writer::write(input.to_str().unwrap(), output.as_str());
 }
