@@ -20,6 +20,12 @@ fn main() {
                 .short("o")
                 .long("out")
                 .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("init")
+                .help("if true, writer outputs initializing code")
+                .short("i")
+                .long("init"),
         );
     let matches = app.get_matches();
     let input = Path::new(matches.value_of("input").unwrap())
@@ -29,13 +35,24 @@ fn main() {
         Some(dir_entry) => dir_entry.path().extension() == Some(OsStr::new("vm")),
         None => false,
     });
-    let asm_path = input.join(format!("{}.asm", input.file_name().unwrap().to_str().unwrap())).to_string_lossy().to_string();
+    let asm_path = input
+        .join(format!(
+            "{}.asm",
+            input.file_name().unwrap().to_str().unwrap()
+        ))
+        .to_string_lossy()
+        .to_string();
+    let mut writer = vm_translator::code_writer::Writer::new(asm_path.as_str());
+    if matches.is_present("init") {
+        writer.write_init()
+    } else {
+    };
+    println!("{:?}", asm_path);
     for file in files {
         let file = file.unwrap().path();
         let vm_path = file.to_str().unwrap();
         println!("{:?}", vm_path);
-        println!("{:?}", asm_path);
-        vm_translator::code_writer::Writer::new(vm_path, asm_path.as_str()).write();
+        writer.write(vm_path);
     }
 
     let input = Path::new(asm_path.as_str()).canonicalize().unwrap();

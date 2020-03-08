@@ -19,6 +19,7 @@ pub struct Parser {
     vm: Vec<String>,
     current: usize,
     code: String,
+    current_function: String,
 }
 
 impl Parser {
@@ -45,6 +46,7 @@ impl Parser {
             vm: vm,
             current: 0,
             code: "".to_string(),
+            current_function: "".to_string(),
         })
     }
 
@@ -56,6 +58,12 @@ impl Parser {
         assert!(self.has_more_commands());
         self.code = self.vm[self.current].clone();
         self.current += 1;
+        match self.command_type() {
+            Command::Function => {
+                self.current_function = self.arg1().unwrap();
+            },
+            _ => {},
+        }
     }
 
     pub fn command_type(&self) -> Command {
@@ -89,5 +97,9 @@ impl Parser {
 
     pub fn command(&self) -> String {
         self.code.split_whitespace().nth(0).unwrap().to_string()
+    }
+
+    pub fn current_function(&self) -> String {
+        self.current_function.clone()
     }
 }
